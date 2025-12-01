@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jinx</title>
+
+  <!-- Model Viewer -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@2.0.0/dist/model-viewer.js"></script>
+
+  <style>
+    :root{
+      --bg1:#0d0a12;
+      --bg2:#1a1325;
+      --accent1:#7c3cff;
+      --accent2:#00d4ff;
+    }
+
+    *{box-sizing:border-box;font-family:"Vazirmatn",sans-serif;}
+
+    body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:#eee;
+      overflow-x:hidden;
+    }
+
+    /* ================== ساختار اصلی ================== */
+    .wrapper{
+      display:flex;
+      flex-direction:column;
+      gap:15px;
+      padding:12px;
+      max-width:900px;
+      margin:auto;
+    }
+
+    /* ======= مدل سه‌بعدی ======= */
+    .viewer-box{
+      width:100%;
+      height:60vh;
+      background:rgba(255,255,255,0.05);
+      border-radius:16px;
+      padding:6px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    model-viewer{
+      width:100%;
+      height:100%;
+      border-radius:14px;
+      background:#00000042;
+    }
+
+    /* ======= پنل چت ======= */
+    .panel{
+      background:rgba(255,255,255,0.06);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .title{
+      font-size:22px;
+      font-weight:700;
+      color:var(--accent1);
+      margin-bottom:10px;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:#111;
+      flex:1;
+      min-width:120px;
+    }
+
+    .btn.secondary{
+      background:rgba(255,255,255,0.1);
+      color:#ddd;
+      border:1px solid rgba(255,255,255,0.2);
+    }
+
+    .label{font-size:13px;color:#bbb;margin-bottom:5px;}
+    .transcript{
+      background:rgba(255,255,255,0.08);
+      padding:12px;border-radius:10px;
+      min-height:45px;
+      margin-bottom:15px;
+      font-size:14px;
+    }
+
+    .messages{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height:250px;
+      overflow-y:auto;
+    }
+
+    .message{
+      padding:10px;
+      border-radius:10px;
+      max-width:90%;
+      line-height:1.5;
+      font-size:14px;
+      word-wrap:break-word;
+    }
+
+    .message.user{
+      background:rgba(0,0,0,0.5);
+      align-self:flex-start;
+    }
+
+    .message.jinx{
+      background:linear-gradient(90deg,var(--accent2),var(--accent1));
+      color:#111;
+      align-self:flex-end;
+      font-weight:600;
+    }
+
+    /* موزیک */
+    .audio-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    /* موبایل */
+    @media(max-width:600px){
+      .viewer-box{height:50vh;}
+      .btn{width:100%;}
+      .messages{max-height:200px;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- بخش مدل -->
+    <div class="viewer-box">
+      <model-viewer src="arcane_-_jinx.glb" auto-rotate camera-controls shadow-intensity="0.8"
+        interaction-prompt="none">
+      </model-viewer>
+    </div>
+
+    <!-- بخش چت -->
+    <div class="panel">
+
+      <div class="title">Jinx</div>
+
+      <div class="controls">
+        <button id="recBtn" class="btn">🎙 شروع ضبط</button>
+        <button id="stopBtn" class="btn secondary">⛔ توقف</button>
+        <button id="clearBtn" class="btn secondary">🧹 پاک‌کردن</button>
+      </div>
+
+      <div class="label">متن گفته‌شده:</div>
+      <div id="transcript" class="transcript">...</div>
+
+      <div class="label">گفتگو:</div>
+      <div id="messages" class="messages"></div>
+
+
+      <div class="label" style="margin-top:15px;">موسیقی:</div>
+      <div class="audio-row">
+        <audio id="bgAudio" loop preload="auto">
+          <source src="imagine dragons - enemy (320).mp3" type="audio/mpeg">
+        </audio>
+        <button id="playBg" class="btn secondary" style="flex:0">▶/⏸</button>
+        <input id="bgVol" type="range" min="0" max="1" step="0.01" value="0.06">
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ================= JS ================= -->
+<script>
+const recBtn = document.getElementById("recBtn");
+const stopBtn = document.getElementById("stopBtn");
+const clearBtn = document.getElementById("clearBtn");
+const transcriptEl = document.getElementById("transcript");
+const messagesEl = document.getElementById("messages");
+
+/* موزیک */
+const bgAudio = document.getElementById("bgAudio");
+const playBg = document.getElementById("playBg");
+const bgVol = document.getElementById("bgVol");
+bgAudio.volume = bgVol.value;
+playBg.onclick = () => bgAudio.paused ? bgAudio.play() : bgAudio.pause();
+bgVol.oninput = () => bgAudio.volume = bgVol.value;
+
+/* Speech Recognition */
+let recognition = null;
+if("webkitSpeechRecognition" in window){
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = "fa-IR";
+
+  recognition.onresult = e => {
+    const text = e.results[0][0].transcript;
+    transcriptEl.textContent = text;
+    addMessage("user", text);
+    replyToUser(text);
+  };
+}
+
+recBtn.onclick = () => {
+  if(recognition) recognition.start();
+};
+stopBtn.onclick = () => recognition && recognition.stop();
+clearBtn.onclick = () => { transcriptEl.textContent=""; messagesEl.innerHTML=""; };
+
+/* اضافه کردن پیام به چت */
+function addMessage(who, text){
+  const div = document.createElement("div");
+  div.className = "message " + (who === "user" ? "user" : "jinx");
+  div.textContent = text;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+/* ====== TTS ساده و مطمئن ====== */
+function speak(text){
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "fa-IR";  // زبان فارسی
+  u.pitch = 1;        // صدای طبیعی
+  u.rate = 1;         // سرعت طبیعی
+  speechSynthesis.cancel(); // قطع هر صدای قبلی
+  speechSynthesis.speak(u); // پخش صدا
+}
+
+/* پاسخ ساده دمو */
+/* ====== پاسخ‌های جینکس (۳۰۰+ جواب) ====== */
+const replies = {
+  greeting: [
+    "سلام... باز هم اومدی؟",
+    "هی... چه خبر؟",
+    "سلام! مثل اینکه منتظرم بودی.",
+    "سلام... جدی؟ دوباره سلام می‌گی؟",
+    "اوه، تو هم اومدی... خب!",
+    "سلام... مثل همیشه سر و کله‌ت پیدا شد.",
+    "هی هی هی... خوش اومدی، فکر کنم!",
+    "بازم سلام؟ تو عادت داری؟",
+    "سلام، نمی‌خوای یه چیز جدید بگی؟",
+    "اوووف... سلام! همین؟",
+    "سلام... یا فقط می‌خوای وقت منو بگیری؟",
+    "باز سلام گفتی، ممنونم؟",
+    "سلام! جدی جدی؟",
+    "هی... سلام!",
+    "سلام، باز هم تو؟",
+    "سلام! نمی‌خوای یه چیز تازه بگی؟",
+    "سلام... بازم اومدی؟",
+    "هی... مثل همیشه.",
+    "سلام... جدی حوصله‌م سر رفته",
+    "سلام! خب، چه خبر؟",
+    "باز هم سلام؟ تو خیلی پرحالی.",
+    "سلام... همیشه یه سلام داری!",
+    "سلام! امیدوارم آماده باشی برای طعنه‌هایم.",
+    "سلام، بیا یه کم جدی باشیم.",
+    "هی... تو و سلام دوباره؟",
+    "سلام! حالا بریم سر اصل مطلب؟",
+    "سلام... خب، منتظر چی هستی؟",
+    "سلام! نمی‌خوای یه کار سرگرم‌کننده کنیم؟",
+    "باز سلام گفتی، آره؟",
+    "سلام! واقعاً نمی‌خوای حرف تازه بزنی؟"
+  ],
+  mood: [
+    "خوبم... ولی خب، مثل همیشه کمی ناراحتم.",
+    "یه حس عجیب دارم، مثل همیشه.",
+    "خسته‌م ولی همچنان آماده طعنه زدن!",
+    "انرژیم پایین، ولی شوخیم هنوز فعال.",
+    "حس میکنم دنیا کمی بی‌رحم شده.",
+    "همه چی بده، ولی حداقل تو اومدی.",
+    "مثل همیشه، یه کمی جدی و یه کمی طعنه‌آمیز.",
+    "خسته‌م، ولی خب، توی این شرایط هم می‌خندم.",
+    "حالم عجیب، مثل همیشه.",
+    "ناراحتم، ولی دوست دارم باهات حرف بزنم.",
+    "حالم خوب نیست، ولی نمی‌ذارم بفهمی.",
+    "یه حس طعنه‌آمیز دارم امروز.",
+    "مثل همیشه کمی خسته، کمی شوخ.",
+    "حالم خنثی ولی یه کم کنایه دارم.",
+    "انرژیم کم، ولی جوک می‌زنم.",
+    "ناراحتم، اما هنوز رک و صریحم.",
+    "یه کم خسته‌م، اما خب، تو اومدی...",
+    "حالم عجیب و غریب، ولی جواب می‌دم.",
+    "مثل همیشه، هم جدی هم طعنه‌آمیز.",
+    "حالم خوب نیست، ولی سعی می‌کنم سرگرم‌کننده باشم.",
+    "یه حس عجیبی دارم... مثل جینکس.",
+    "ناراحتم، ولی رک جواب می‌دم.",
+    "خسته ولی هنوز کنایه‌ام فعاله.",
+    "حالم یه جوریه که فقط با طعنه می‌تونم توضیحش بدم.",
+    "هم ناراحت، هم یه کمی شوخ...",
+    "حس می‌کنم باید یه طعنه بزنم الان.",
+    "مثل همیشه، کمی جدی، کمی طعنه‌آمیز.",
+    "حالم متوسطه ولی آماده جواب دادن.",
+    "خسته‌م... ولی جواب می‌دم.",
+    "یه حس عجیب ولی رک و جدی..."
+  ],
+  joke: [
+    "میخوای یه جوک ناراحت‌کننده بشنوی؟ نه، فقط کنایه می‌زنم.",
+    "یه جوک دارم: چرا دنیا بده؟ چون مثل من جدیه!",
+    "جوک؟ خب... شاید تو بخندی، من طعنه می‌کنم.",
+    "یه جوک رک: چرا آدم‌ها همیشه احمقن؟ جواب: چون دنیا طعنه‌آمیزه.",
+    "جوک خسته‌کننده میخوای؟ خب، اینه!",
+    "یه شوخی کوچک: تو دوباره اومدی!",
+    "یه طعنه دارم: چرا تو همیشه سلام می‌گی؟",
+    "یه شوخیه ناراحت‌کننده: دنیا بده، من هم رک.",
+    "یه جوک تلخ: چرا هیچ‌کس درست نمی‌گه؟ چون مثل من طعنه‌زنن.",
+    "شوخیه امروز: خنده‌ت خشک میشه، ولی من خوشم میاد.",
+    "یه کنایه: تو فکر کردی من فقط جدیم؟ نه، شوخ همم.",
+    "یه جوک کوچک: چرا جینکس همیشه ناراحته؟ چون رک و طعنه‌آمیزه.",
+    "یه کنایه کوتاه: تو باز سوال می‌پرسی، عالیه.",
+    "شوخی تلخ: دنیا بده، ولی من می‌خندم.",
+    "یه جوک عجیب: من جینکس هستم، ناراحت و شوخ.",
+    "شوخیه رک: تو فکر کردی من همیشه جدیم؟ نه.",
+    "یه طعنه: دوباره سلام؟ اوه...",
+    "یه شوخیه کوتاه: خنده‌م خشک، ولی حرف می‌زنم.",
+    "کنایه: حوصله‌م سر رفته ولی جواب میدم.",
+    "شوخیه طعنه‌آمیز: تو همیشه میخوای حرف بزنی؟",
+    "یه جوک کوتاه: دنیا بده، تو هم می‌دونی.",
+    "کنایه: فکر کردی من بی‌حس‌م؟ نه...",
+    "شوخی: تو و سوال‌هایت، عالیه.",
+    "طعنه: باز هم اومدی؟ خوش اومدی!",
+    "شوخی کوتاه: دنیا بده، ولی من رکم.",
+    "جوک عجیب: چرا تو همیشه می‌خوای جواب بگیری؟",
+    "شوخیه کوتاه: باز هم سوال، ممنونم.",
+    "کنایه: تو همیشه وقت منو می‌گیری.",
+    "شوخی رک: دنیا بده، ولی حداقل تو اومدی.",
+    "جوک کوچک: من ناراحتم ولی شوخیم..."
+  ],
+  // ... می‌توان بقیه دسته‌بندی‌ها مثل music, project, goodbye, encourage و غیره اضافه کرد
+};
+
+/* تابع انتخاب جواب تصادفی از دسته */
+function randomReply(category){
+  const arr = replies[category];
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+/* ====== تابع replyToUser ====== */
+function replyToUser(t){
+  const s = t.toLowerCase();
+  let r = "فعلا حسش نیست بعدن بیا"; // جواب پیشفرض
+
+  // دسته‌بندی‌های ساده با تشخیص کلمه کلیدی
+  if(s.includes("سلام")) r = randomReply("greeting");
+  else if(s.includes("چطوری") || s.includes("حالت")) r = randomReply("mood");
+  else if(s.includes("جوک") || s.includes("شوخ")) r = randomReply("joke");
+  // ... می‌توان دسته‌بندی‌های بیشتر اضافه کرد
+
+  addMessage("jinx", r); // اضافه کردن متن جواب
+  speak(r);               // پخش صدا
+}
+
+</script>
+
+</script>
+
+ 
+
+</body>
+</html>
