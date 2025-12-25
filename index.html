@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jinx — Voice Chat</title>
+  <title>Jinx</title>
 
   <!-- Model Viewer -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@2.0.0/dist/model-viewer.js"></script>
@@ -36,28 +36,35 @@
 <body>
 <div class="wrapper">
 
-  <!-- مدل سه‌بعدی -->
-  <div class="viewer-box">
-    <model-viewer src="arcane_-_jinx.glb" auto-rotate camera-controls shadow-intensity="0.8"></model-viewer>
-  </div>
+<model-viewer
+  id="characterModel"
+  src="arcane_-_jinx.glb"
+  auto-rotate
+  camera-controls
+  shadow-intensity="0.8">
+</model-viewer>
+
+<button id="switchModelBtn" class="btn secondary">
+  تغییر شخصیت
+</button>
 
   <!-- پنل چت -->
   <div class="panel">
     <div class="title">Jinx</div>
 
     <div class="controls">
-      <button id="recBtn" class="btn">🎙 شروع ضبط</button>
-      <button id="stopBtn" class="btn secondary">⛔ توقف</button>
-      <button id="clearBtn" class="btn secondary">🧹 پاک‌کردن</button>
+      <button id="recBtn" class="btn">start</button>
+      <button id="stopBtn" class="btn secondary">stop</button>
+      <button id="clearBtn" class="btn secondary">delete</button>
     </div>
 
-    <div class="label">متن گفته‌شده:</div>
+    <div class="label">text:</div>
     <div id="transcript" class="transcript">...</div>
 
-    <div class="label">گفتگو:</div>
+    <div class="label">conversition:</div>
     <div id="messages" class="messages"></div>
 
-    <div class="label" style="margin-top:15px;">موسیقی:</div>
+    <div class="label" style="margin-top:15px;">music:</div>
     <div class="audio-row">
       <audio id="bgAudio" loop preload="auto">
         <source src="imagine dragons - enemy (320).mp3" type="audio/mpeg">
@@ -339,7 +346,7 @@ replies_sad :[
   "می‌دونم بده… ولی رد میشه."
 ],
 
-replies_shut : [
+shut : [
   "اوه، می‌خوای ساکت بشم؟ نه.",
   "هه چه بانمک… انگار من به دستور بقیه ساکت میشم.",
   "باشه… یک‌ثانیه… نه دوباره حرف زدم."
@@ -663,7 +670,30 @@ if(s.includes("خبر") || s.includes("اخبار")) r = pick("news")
   addMessage("jinx",r);
   speak(r);
 }
+
+
+const modelViewer = document.getElementById("characterModel");
+const switchBtn = document.getElementById("switchModelBtn");
+
+let currentModel = "jinx";
+
+switchBtn.onclick = () => {
+  if (currentModel === "jinx") {
+    modelViewer.src = "kirito.glb";   // ← مدل کیریتو
+    currentModel = "krito";
+    addMessage("jinx", "خب... کیریتو اومد 😏");
+    speak("خب... کیریتو اومد");
+  } else {
+    modelViewer.src = "arcane_-_jinx.glb"; // ← مدل جینکس
+    currentModel = "jinx";
+    addMessage("jinx", "برگشتم! دلتنگم شد؟ 😈");
+    speak("برگشتم! دلتنگم شد؟");
+  }
+};
+
+
 </script>
 
 </body>
 </html>
+
