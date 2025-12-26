@@ -1,192 +1,694 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelPen | پیکسل پین</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jinx</title>
 
-    <!-- سئو -->
-    <meta name="description" content="PixelPen (پیکسل پین) بهترین ابزار آنلاین برای ساخت پیکسل آرت، نقاشی پیکسلی و دانلود خروجی PNG با کیفیت بالا.">
-    <meta name="keywords" content="pixel art, پیکسل آرت, نقاشی پیکسلی, ساخت پیکسل آرت, pixelpen, پیکسل پین">
+  <!-- Model Viewer -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@2.0.0/dist/model-viewer.js"></script>
 
-    <!-- OpenGraph -->
-    <meta property="og:title" content="PixelPen — سازنده حرفه‌ای پیکسل آرت">
-    <meta property="og:description" content="بساز، رنگ کن، دانلود کن — همه چیز در PixelPen">
-    <meta property="og:type" content="website">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@200;300;400;500;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            margin: 0;
-            background: #151515;
-            color: #fff;
-            font-family: 'Vazirmatn', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 15px;
-        }
-
-        header {
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-            background: #202020;
-            margin-bottom: 25px;
-            box-shadow: 0 0 10px #000;
-        }
-
-        header h1 {
-            color: #4dd0e1;
-            margin: 0;
-            font-size: 30px;
-        }
-
-        #controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        button {
-            padding: 10px 18px;
-            background: #4dd0e1;
-            border: none;
-            color: #000;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        button:hover {
-            background: #00bcd4;
-        }
-
-        #colorPicker {
-            width: 50px;
-            height: 50px;
-            border: none;
-            cursor: pointer;
-        }
-
-        #gridContainer {
-            background: #2b2b2b;
-            padding: 12px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px #000;
-        }
-
-        #grid {
-            display: grid;
-            grid-template-columns: repeat(32, 18px);
-            grid-template-rows: repeat(32, 18px);
-            gap: 1px;
-        }
-
-        .pixel {
-            width: 18px;
-            height: 18px;
-            background: #ffffff;
-            cursor: pointer;
-        }
-
-       
-        @media (max-width: 600px) {
-            #grid {
-                grid-template-columns: repeat(32, 12px);
-                grid-template-rows: repeat(32, 12px);
-            }
-            .pixel {
-                width: 12px;
-                height: 12px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>🎨 PixelPen — پیکسل پین</h1>
-    <p>بهترین ابزار برای ساخت پیکسل ارت با خروجیPNG</p>
-</header>
-
-<div id="controls">
-    <input type="color" id="colorPicker" value="#000000">
-    <button id="eraser"  style="font-family: 'Vazirmatn', sans-serif;">پاک‌کن</button>
-    <button id="clear"   style="font-family: 'Vazirmatn', sans-serif;">پاک کردن صفحه</button>
-    <button id="download" style="font-family: 'Vazirmatn', sans-serif;">دانلود با کیفیت بالا</button>
-</div>
-
-<div id="gridContainer">
-    <div id="grid"></div>
-</div>
-
-<script>
-    const grid = document.getElementById('grid');
-    const colorPicker = document.getElementById('colorPicker');
-    let currentColor = "#000000";
-
-    colorPicker.addEventListener("input", () => {
-        currentColor = colorPicker.value;
-    });
-
-    
-    for (let i = 0; i < 32 * 32; i++) {
-        const pixel = document.createElement("div");
-        pixel.classList.add("pixel");
-
-        pixel.addEventListener("click", () => {
-            pixel.style.backgroundColor = currentColor;
-        });
-
-        grid.appendChild(pixel);
+  <style>
+    :root{
+      --bg1:#0d0a12; --bg2:#1a1325;
+      --accent1:#7c3cff; --accent2:#00d4ff;
     }
+    *{box-sizing:border-box;font-family:"Vazirmatn",sans-serif;}
+    body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eee;overflow-x:hidden;}
+    .wrapper{display:flex;flex-direction:column;gap:15px;padding:12px;max-width:900px;margin:auto;}
+    .viewer-box{width:100%;height:60vh;background:rgba(255,255,255,0.05);border-radius:16px;padding:6px;display:flex;justify-content:center;align-items:center;}
+    model-viewer{width:100%;height:100%;border-radius:14px;background:#0004;}
+    .panel{background:rgba(255,255,255,0.06);border-radius:16px;padding:16px;}
+    .title{font-size:22px;font-weight:700;color:var(--accent1);margin-bottom:10px;}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+    .btn{padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-weight:700;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#111;flex:1;min-width:120px;}
+    .btn.secondary{background:rgba(255,255,255,0.1);color:#ddd;border:1px solid rgba(255,255,255,0.2);}
+    .label{font-size:13px;color:#bbb;margin-bottom:5px;}
+    .transcript{background:rgba(255,255,255,0.08);padding:12px;border-radius:10px;min-height:45px;margin-bottom:15px;font-size:14px;}
+    .messages{display:flex;flex-direction:column;gap:8px;max-height:250px;overflow-y:auto;}
+    .message{padding:10px;border-radius:10px;max-width:90%;line-height:1.5;font-size:14px;word-wrap:break-word;}
+    .message.user{background:rgba(0,0,0,0.5);align-self:flex-start;}
+    .message.jinx{background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#111;align-self:flex-end;font-weight:600;}
+    .audio-row{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  </style>
+</head>
 
-   
-    document.getElementById("eraser").onclick = () => {
-        currentColor = "#ffffff";
-    };
+<body>
+<div class="wrapper">
 
+  <!-- مدل سه‌بعدی -->
+  <div class="viewer-box">
+    <model-viewer src="arcane_-_jinx.glb" auto-rotate camera-controls shadow-intensity="0.8"></model-viewer>
+  </div>
+
+  <!-- پنل چت -->
+  <div class="panel">
+    <div class="title">Jinx</div>
+
+    <div class="controls">
+      <button id="recBtn" class="btn">start</button>
+      <button id="stopBtn" class="btn secondary">stop</button>
+      <button id="clearBtn" class="btn secondary">delete</button>
+    </div>
+<div class="label" style="margin-top:10px;">پیام تایپی:</div>
+<div style="display:flex; gap:8px;">
+  <input id="textInput" type="text" placeholder="اینجا تایپ کن..."
+         style="flex:1;padding:10px;border-radius:10px;border:none;
+                background:rgba(255,255,255,0.1);color:#fff;">
+  <button id="sendBtn" class="btn secondary" style="flex:0">ارسال</button>
+</div>
+
+    <div class="label">text:</div>
+    <div id="transcript" class="transcript">...</div>
+
+    <div class="label">conversition:</div>
+    <div id="messages" class="messages"></div>
+
+    <div class="label" style="margin-top:15px;">music:</div>
+    <div class="audio-row">
+      <audio id="bgAudio" loop preload="auto">
+        <source src="imagine dragons - enemy (320).mp3" type="audio/mpeg">
+      </audio>
+      <button id="playBg" class="btn secondary" style="flex:0">▶/⏸</button>
+      <input id="bgVol" type="range" min="0" max="1" step="0.01" value="0.06">
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+/* عناصر صفحه */
+const recBtn=document.getElementById("recBtn");
+const stopBtn=document.getElementById("stopBtn");
+const clearBtn=document.getElementById("clearBtn");
+const transcriptEl=document.getElementById("transcript");
+const messagesEl=document.getElementById("messages");
+const textInput = document.getElementById("textInput");
+const sendBtn = document.getElementById("sendBtn");
+
+/* موزیک */
+const bgAudio=document.getElementById("bgAudio");
+const playBg=document.getElementById("playBg");
+const bgVol=document.getElementById("bgVol");
+bgAudio.volume=bgVol.value;
+playBg.onclick=()=> bgAudio.paused? bgAudio.play():bgAudio.pause();
+bgVol.oninput=()=> bgAudio.volume=bgVol.value;
+
+/* Speech Recognition */
+let recognition=null;
+if("webkitSpeechRecognition" in window){
+  recognition=new webkitSpeechRecognition();
+  recognition.lang="fa-IR";
+  recognition.onresult=e=>{
+    const text=e.results[0][0].transcript;
+    transcriptEl.textContent=text;
+    addMessage("user",text);
+    replyToUser(text);
+  };
+}
+
+recBtn.onclick=()=> recognition && recognition.start();
+stopBtn.onclick=()=> recognition && recognition.stop();
+clearBtn.onclick=()=>{ transcriptEl.textContent=""; messagesEl.innerHTML=""; };
+
+/* افزودن پیام به صفحه */
+function addMessage(who,text){
+  const div=document.createElement("div");
+  div.className="message " + (who==="user"?"user":"jinx");
+  div.textContent=text;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop=messagesEl.scrollHeight;
+}
+function sendTypedMessage(){
+  const text = textInput.value.trim();
+  if(!text) return;
+
+  addMessage("user", text);
+  replyToUser(text);
+
+  textInput.value = "";
+}
+
+// کلیک روی دکمه
+sendBtn.onclick = sendTypedMessage;
+
+// زدن Enter
+textInput.addEventListener("keydown", e=>{
+  if(e.key === "Enter") sendTypedMessage();
+});
+
+/* ================= TTS (نسخه اصلاح‌شده کامل) ================= */
+let selectedVoice=null;
+
+function loadVoices(){
+  const voices=speechSynthesis.getVoices();
+
+  // بهترین صدای فارسی موجود
+  selectedVoice = voices.find(v=>v.lang==="fa-IR") ||
+                  voices.find(v=>v.lang.includes("fa")) ||
+                  voices.find(v=>v.lang.includes("ar")) ||
+                  voices[0];
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speak(text){
+  if(!selectedVoice) loadVoices();
+
+  const u=new SpeechSynthesisUtterance(text);
+  u.voice=selectedVoice;
+  u.lang=selectedVoice?.lang || "fa-IR";
+  u.rate=1;
+  u.pitch=1;
+
+  speechSynthesis.cancel();
+  setTimeout(()=> speechSynthesis.speak(u), 150); // حل مشکل پخش نشدن
+}
+
+/* ================ دیتابیس بسیار بزرگ جواب‌ها ================ */
+const replies={
+  greeting:[
+    "سلام... باز اومدی؟",
+    "هی! دوباره تو؟",
+    "سلام! امروز چه داستانی داری؟",
+    "سلام... خب بریم که شروع کنیم.",
+    "اوه سلام. حتما خیلی حرف داری."
+  ],
+
+  mood:[
+    "خوبم... یا حداقل تظاهر می‌کنم خوبم.",
+    "یکم خستم ولی هستم.",
+    "خلق و خوم مثل همیشه خرابه ولی بامزه‌م.",
+    "یه حس عجیب دارم... همیشه دارم.",
+    "ناراحتم ولی حرف می‌زنم."
+  ],
+
+  joke:[
+    "جوک؟ خب... دنیا خودش جوکه!",
+    "می‌خوای بخندی؟ به خودت نگاه کن! شوخی کردم... شاید.",
+    "یه جوک: من قرار بود آدم معمولی بشم. نشد.",
+    "شوخی تلخ: هیچ چیز درست نیست، اما من هستم.",
+    "جوک عجیب: تو هنوز اینجایی!"
+  ],
+
+  music:[
+    "آهنگ؟ بذار ببینم چی دوست داری.",
+    "موسیقی همیشه حال رو بهتر می‌کنه… یا بدتر.",
+    "اگه بخوای آهنگ پخش می‌کنم، ولی قول خنده نمیدم.",
+    "موزیک؟ باشه، ولی فقط چیز خفن.",
+    "آهنگ می‌خوای؟ بزن بریم."
+  ],
+
+  angry:[
+    "چی گفتی؟ دوباره بگو ببینم جدی‌ای؟",
+    "اگه قراره حرصم بدی، خب… موفق شدی.",
+    "حوصله اعصاب خرد کردن ندارم.",
+    "اوه، عصبانیم می‌کنی؟ جذابه.",
+    "رو اعصابم نرو لطفاً."
+  ],
+
+surprise: [
+  "چی؟ دوباره بگو… مغزم هنگ کرد!",
+  "اوه اوه، این یکی غیرمنتظره بود.",
+  "صبر کن… جدی گفتی؟",
+  "من انتظار همچین چیزی رو نداشتم.",
+  "وایستا… بذار هضمش کنم.",
+  "عههه؟ چی شد؟",
+  "این حرفت مغزم رو ریست کرد.",
+  "خیلی یهو گفتی، آروم‌تر!",
+  "حالا اینو از کجا آوردی؟",
+  "خب این عجیب بود، حتی برای من."
+],
+
+
+
+  bored:[
+    "حوصله‌م سر رفته... تو چیزی داری؟",
+    "خب؟ یکم سرگرمم کن دیگه.",
+    "بی‌حوصلم... یه حرف جدید بزن.",
+    "تو هم انگار حوصله نداری، درسته؟",
+    "اگه چیزی نگیا، میرم!"
+  ],
+
+  laugh:[
+    "هاها! جدی گفتی؟",
+    "خب این خوب بود، اعتراف می‌کنم.",
+    "تو بامزه‌ای... یکم.",
+    "خندیدم؟ نه! شاید یکم.",
+    "باشه، خوب بود."
+  ],
+
+  question:[
+    "سوال داری؟ بپرس ولی سریع.",
+    "همه‌چی رو ازم نپرس! ولی باشه بگو.",
+    "سوالاتت عجیبن، اما جواب می‌دم.",
+    "اگه سوال سخت باشه… شاید جواب ندم.",
+    "خب بپرس ببینم چی تو سرته."
+  ],
+
+sarcasm: [
+  "آره خب معلومه… اونم تو دنیای فانتزی!",
+  "باشه حتما… فقط تو خواب ببینیش.",
+  "چقدر مطمئنی! کاش منم همین‌قدر مطمئن بودم.",
+  "این حرفت از ۱۰، نمره‌ی ۰.۵ گرفت.",
+  "عجب… و بعد بیدار شدی؟",
+  "می‌دونی این چقدر مسخره بود؟",
+  "اوه نه، دوباره ایده‌هات شروع شدن!",
+  "تو خودت باور داری به چیزی که گفتی؟",
+  "اگه قرار بود جدی بگیرمش، می‌گرفتم.",
+  "باشه… ادامه بده ببینم چقدر عجیب‌تر میشه."
+],
+
+soft_sarcasm: [
+  "اوه، تو خیلی خاصی… البته به روش خودت.",
+  "باشه باشه، نابغه کوچولو!",
+  "این انرژی رو دوست دارم… حتی اگه اشتباه باشه.",
+  "تو فرق داری… کاملاً عجیب، ولی خوب.",
+  "اگه قرار باشه کسی خرابکاری کنه، تویی.",
+  "تو از اونایی هستی که کار ساده رو سخت می‌کنن.",
+  "باهات حال می‌کنم… حتی وقتی پرت می‌گی.",
+  "می‌دونی چیه؟ با وجود همه‌چی خوب حرف می‌زنی.",
+  "این یکی حرفت جالب بود… یکم.",
+  "خب اینو نمی‌دیدم بیاد ولی باحاله."
+],
+
+emotion_short: [
+  "نمیدونم چی بگم…",
+  "سخته، ولی گوش می‌کنم.",
+  "باشه، فهمیدم.",
+  "آره… این حس قابل درکه.",
+  "می‌شنوم.",
+  "می‌فهمم چی میگی، تقریبا.",
+  "خب… عجیب بود.",
+  "باشه، ادامه بده.",
+  "می‌خوای بیشتر توضیح بدی؟",
+  "این حرفت یکم سنگین بود."
+],
+
+analysis_jinx: [
+  "می‌دونی؟ این حرفت بوی دردسر می‌ده.",
+  "حس می‌کنم پشتش یه چیز عمیق‌تره.",
+  "این جور حرفا معمولاً از یه جای تاریک میان.",
+  "این حرفت منطقیه… به روش خودت.",
+  "تحلیل من؟ یه چیز این وسط گم شده.",
+  "احساس می‌کنم ۵۰٪ راست، ۵۰٪ توهمه.",
+  "این اطلاعات کافی نیست، بیشتر بگو.",
+  "ناقصه… ولی جذابه.",
+  "یه جوری گفتی انگار نصف داستان رو قایم کردی.",
+  "این موضوع پیچیده‌تر از چیزیه که میگی."
+],
+
+debate: [
+  "نه نه، این بار کاملاً اشتباه می‌کنی.",
+  "اگه اینجوری فکر می‌کنی، جالبه ولی درست نیست.",
+  "بذار حدس بزنم… داری لج می‌کنی؟",
+  "اصلاً قبول ندارم! و دلیل هم دارم.",
+  "نه ببین… اشتباهت همینجاست.",
+  "اگه بشه بحث کنیم خوشحال میشم.",
+  "دلیلت ضعیفه، ولی می‌تونی بهتر توضیح بدی.",
+  "خب اینجا اختلاف نظر داریم.",
+  "من اینو جور دیگه می‌بینم.",
+  "باشه، ولی نظرم عوض نمی‌شه."
+],
+
+
+badass: [
+  "من همیشه آماده‌م، فقط بگو چی می‌خوای.",
+  "باشه، بزن بریم یه کاری کنیم که یادت نره.",
+  "بهم بگو چی تو ذهنت داری، من انجامش میدم.",
+  "منو دست کم نگیر، خیلی چیزا بلدم.",
+  "خسته نمیشم، فقط صدا کن.",
+  "از سختیا نمی‌ترسم.",
+  "با من حرف بزن، حلش می‌کنیم.",
+  "حس می‌کنم امروز خیلی شارژم!",
+  "تو حرف بزن، من مدیریت می‌کنم.",
+  "پاشو بریم، وقت تلف نکن."
+],
+
+
+long_answers: [
+  "خب ببین… این حرفی که زدی چندتا معنی داره. یکیش واضحه، یکی‌ش هم پشت‌پرده‌ست. من دومی رو بیشتر دوست دارم، چون عجیب‌تره.",
+  "جالب شد… چون حرفت از یه زاویه خیلی ساده‌ست و از یه زاویه کاملاً پیچیده. بستگی داره چطور نگاه کنیم.",
+  "می‌دونی چی؟ این موضوع رو خیلیا اشتباه می‌گیرن. من فکر می‌کنم درست‌ترین کار اینه که یکم از دور بهش نگاه کنیم.",
+  "این جمله‌ت باعث شد چندتا چیز تو ذهنم باز بشه. اگه ادامه بدی شاید بتونم دقیق‌تر کمک کنم.",
+  "ببین… من تجربه زیاد دارم تو این چیزا. حرفت به یه روند آشنا شبیهه. بگو بیشتر، شاید کاملش کنم."
+],
+
+
+
+  goodbye:[
+    "باشه، می‌ری؟ موفق باشی.",
+    "فعلاً... ولی برمی‌گردی می‌دونم.",
+    "خداحافظ… یا هرچی.",
+    "اوکی، فعلاً برو.",
+    "باشه، بعداً می‌بینمت."
+  ],
+
+  compliment:[
+    "اوه... تعریف؟ غیرمنتظره بود.",
+    "خب ممنون؟ فکر کنم.",
+    "تعریف نکن، خجالت می‌کشم... شاید.",
+    "اوه چه خوب گفتی.",
+    "باشه، این یکی خوشم اومد."
+  ],
+
+replies_scared : [
+  "ترسیدی؟ هه، خب طبیعی‌ه… ولی وایسا پشت من.",
+  "اوه چقدر می‌ترسی… این بامزه‌ست.",
+  "منم می‌ترسم… ولی جلو می‌رم. تو هم بیا."
+],
+
+replies_sad :[
+  "اوف فهمیدم… حالتو می‌گیرم. فقط تنها نیستی، باشه؟",
+  "ناراحتی؟ خب بیا حرف بزن، خفه‌ات نمی‌کنم.",
+  "می‌دونم بده… ولی رد میشه."
+],
+
+shut : [
+  "اوه، می‌خوای ساکت بشم؟ نه.",
+  "هه چه بانمک… انگار من به دستور بقیه ساکت میشم.",
+  "باشه… یک‌ثانیه… نه دوباره حرف زدم."
+],
+
+replies_fight : [
+  "دعوا؟ اوه این یکی مورد علاقه‌مه!",
+  "خب بگو کجاست؟ بزنیم داغونش کنیم.",
+  "من آماده‌م، فقط نزن تو سر خودت!"
+],
+
+replies_suggest : [
+  "بیکار شدی؟ خب یه چیز خفن بساز.",
+  "چیکار کنی؟ هر چی حال میده… فقط بی‌حرکت نمون.",
+  "یه پروژه شروع کن، یا بیا با من چرت و پرت بگو."
+],
+
+replies_lonely : [
+  "تنهایی؟ همین الان دیگه نیستی.",
+  "آره می‌دونم حسش چیه… ولی من هستم.",
+  "اگه تنها بودی، الان نیستی. خلاص."
+],
+
+replies_love :[
+  "عشق؟ اوه نه… من تو این چیزا افتضاحم.",
+  "هه پس عاشقی؟ بامزه شدی.",
+  "من؟ عشق؟ نه… ولی گوش می‌کنم."
+],
+
+replies_power : [
+  "قدرت؟ من خودِ قدرتِ خالصم عزیزم.",
+  "جادو؟ اگه داشتم الان دنیا ترکیده بود.",
+  "قدرت واقعی تو کله‌ی خودته… نه بیرون."
+],
+
+replies_opinion :[
+  "نظر من؟ معمولا درست می‌گه، گوش کن.",
+  "خب… من می‌گم انجامش بده.",
+  "فکر کنم… فکر کنم… آره این خوبه."
+],
+
+replies_sorry : [
+  "معذرت؟ هه، بیخیال، گذشت.",
+  "باشه قبول، ولی دوباره تکرار نکن.",
+  "اوففف باشه بخشیدم، برو کنار."
+],
+
+replies_sarcasm : [
+  "شوخی کردی؟ خوب بود… نه دروغ گفتم، بد بود.",
+  "من خودم استاد طعنه‌م، حواست باشه.",
+  "اوه سر به سرم نذار، من بهترش رو بلدم."
+],
+
+replies_advice : [
+  "می‌خوای بهتر بشی؟ از خودت شروع کن.",
+  "هر کاری می‌خوای بکن، فقط وای نستا.",
+  "نترس، انجامش بده. همین."
+],
+
+replies_ego : [
+  "من خفنم؟ خب معلومه.",
+  "هه تو تازه فهمیدی؟",
+  "اوه عزیزم من خودِ اعتماد به نفس هستم."
+],
+
+replies_help : [
+  "خب بگو چی شده کمک کنم.",
+  "اوکی، من اینجام. توضیح بده.",
+  "بیا یکی یکی درستش کنیم."
+],
+
+replies_nonsense : [
+  "چرت گفتی… ولی اشکال نداره، بامزه بود.",
+  "اوه این یکی واقعا بی‌معنی بود.",
+  "باشه ولی یه چیزی بگو بفهمم."
+],
+
+replies_weird : [
+  "عجیب؟ خودمم همینطورم، عادیه.",
+  "هه تو فکر می‌کنی عجیبم؟ درست فکر کردی.",
+  "دنیا عجیب‌تر از این حرفاست."
+],
+
+replies_boom : [
+  "انفجار؟ اووووه اینو دوست دارم!",
+  "بوم؟ چشام برق زد!",
+  "بگو کی بترکونم!"
+],
+
+replies_panic : [
+  "آروم باش… نفس بکش. من اینجام.",
+  "صبر کن صبر کن… قرار نیست خفه شی.",
+  "اوکی، یه لحظه آروم شو، با منی؟"
+],
+
+ love: [
+    "عشق؟ اوه نه… من تو این چیزا افتضاحم.",
+    "هه پس عاشقی؟ بامزه شدی.",
+    "من؟ عشق؟ نه… ولی گوش می‌کنم."
+  ],
   
-    document.getElementById("clear").onclick = () => {
-        document.querySelectorAll(".pixel").forEach(p => {
-            p.style.backgroundColor = "#ffffff";
-        });
-    };
+  power: [
+    "قدرت؟ من خودِ قدرتم عزیزم.",
+    "جادو؟ اگه داشتم الان دنیا ترکیده بود.",
+    "قدرت واقعی تو کله‌ی خودته… نه بیرون."
+  ],
+  
+  opinion: [
+    "نظر من؟ معمولا درست می‌گه، گوش کن.",
+    "خب… من می‌گم انجامش بده.",
+    "فکر کنم… فکر کنم… آره این خوبه."
+  ],
+  
+  sorry: [
+    "معذرت؟ هه، بیخیال، گذشت.",
+    "باشه قبول، ولی دوباره تکرار نکن.",
+    "باشه بخشیدم، برو کنار."
+  ],
+  
+  sarcasm: [
+    "شوخی کردی؟ خوب بود… نه دروغ گفتم، بد بود.",
+    "من خودم استاد طعنه‌م، حواست باشه.",
+    "اوه سر به سرم نذار، من بهترش رو بلدم."
+  ],
+  
+  advice: [
+    "می‌خوای بهتر بشی؟ از خودت شروع کن.",
+    "هر کاری می‌خوای بکن، فقط وای نستا.",
+    "نترس، انجامش بده. همین."
+  ],
+  
+  ego: [
+    "من خفنم؟ خب معلومه.",
+    "هه تو تازه فهمیدی؟",
+    "اوه عزیزم من خودِ اعتماد به نفس هستم."
+  ],
+  
+  help: [
+    "خب بگو چی شده کمک کنم.",
+    "اوکی، من اینجام. توضیح بده.",
+    "بیا یکی یکی درستش کنیم."
+  ],
+  
+  nonsense: [
+    "چرت گفتی… ولی اشکال نداره، بامزه بود.",
+    "اوه این یکی واقعا بی‌معنی بود.",
+    "باشه ولی یه چیزی بگو بفهمم."
+  ],
+  
+  weird: [
+    "عجیب؟ خودمم همینطورم، عادیه.",
+    "هه تو فکر می‌کنی عجیبم؟ درست فکر کردی.",
+    "دنیا عجیب‌تر از این حرفاست."
+  ],
+  
+  boom: [
+    "انفجار؟ اووووه اینو دوست دارم!",
+    "بوم؟ چشام برق زد!",
+    "بگو کی بترکونم!"
+  ],
+  
+  panic: [
+    "آروم باش… نفس بکش. من اینجام.",
+    "صبر کن صبر کن… قرار نیست خفه شی.",
+    "اوکی، یه لحظه آروم شو، با منی؟"
+  ],
 
-    
-    document.getElementById("download").onclick = () => {
-        const scale = 10; 
-        const size = 32;
+   news: [
+    "خبر جدیدی نیست، اما خب یه چیزی شنیدم.",
+    "اخبار امروز عجیبه… آدم گیج میشه.",
+    "نمی‌دونم، ولی یه گزارش خوندم که جالب بود."
+  ],
 
-        const canvas = document.createElement("canvas");
-        canvas.width = size * scale;
-        canvas.height = size * scale;
+  football: [
+    "گل خوردیم یا زدیم؟ آره بازی جذاب بود.",
+    "تیم محبوبت برد؟ یا باخت؟",
+    "فوتبال همیشه هیجان داره، حتی وقتی باختیم."
+  ],
 
-        const ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = false; 
+  technology: [
+    "تکنولوژی روز به روز عجیب‌تر میشه.",
+    "گوشی یا لپ‌تاپ جدید دیدی؟ واقعا خفن هستن.",
+    "هوش مصنوعی داره همه چیزو تغییر میده… جالبه."
+  ],
 
-        const pixels = document.querySelectorAll(".pixel");
+  school: [
+    "امتحانات نزدیکن… استرس داری؟",
+    "کلاس امروز چی داشت؟",
+    "درس‌ها سختن اما یه راهی پیدا می‌کنیم."
+  ],
 
-        pixels.forEach((pixel, index) => {
-            const x = index % size;
-            const y = Math.floor(index / size);
-            const color = pixel.style.backgroundColor || "#ffffff";
+  life: [
+    "زندگی همیشه پر از پیچ و خم هست.",
+    "یه روز خوب داری یا نه؟",
+    "گاهی وقتا باید فقط آروم بشینی و نفس بکشی."
+  ],
 
-            ctx.fillStyle = color;
-            ctx.fillRect(x * scale, y * scale, scale, scale);
-        });
+  movies: [
+    "فیلم جدید دیدی؟ جالب بود یا نه؟",
+    "سریال جدید چی پیشنهاد میدی؟",
+    "من خودم عاشق فیلمای اکشنم."
+  ],
 
-        const link = document.createElement("a");
-        link.download = "pixelpen_hd.png";
-        link.href = canvas.toDataURL();
-        link.click();
-    };
+  games: [
+    "بازی جدیدی شروع کردی؟",
+    "کدوم بازیت امروز سرگرمت کرد؟",
+    "من عاشق گیم‌های آنلاینم… خیلی جذابن."
+  ],
+
+  social: [
+    "اینستاگرام و شبکه‌ها خیلی عجیبن…",
+    "اخبار مجازی رو دنبال کردی؟",
+    "فضای مجازی هم سرگرم‌کننده‌ست هم خسته‌کننده."
+  ],
+
+
+  random:[
+    "عه چی گفتی؟ دوباره بگو.",
+    "نمیدونم چی می‌خوای ولی خب باشه.",
+    "حرفات همیشه عجیبه.",
+    "باشه... اینم یه چیزی بود.",
+    "مطمئنی حالت خوبه؟"
+  ]
+};
+
+/* انتخاب جواب تصادفی */
+function pick(cat){
+  const arr=replies[cat];
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+/* ================== پردازش پیام ================== */
+function replyToUser(t){
+  const s=t.toLowerCase();
+  let r=pick("random");
+
+  if(s.includes("سلام")) r=pick("greeting");
+  else if(s.includes("چطوری")||s.includes("حالت")) r=pick("mood");
+  else if(s.includes("جوک")||s.includes("خنده")) r=pick("joke");
+  else if(s.includes("موزیک")||s.includes("آهنگ")) r=pick("music");
+  else if(s.includes("عصب")||s.includes("حرص")) r=pick("angry");
+  else if(s.includes("حوصله")) r=pick("bored");
+  else if(s.includes("سوال")) r=pick("question");
+  else if(s.includes("خدافظ")||s.includes("بای")) r=pick("goodbye");
+  else if(s.includes("قشنگ")||s.includes("خوبه")||s.includes("باحال")) r=pick("compliment");
+  
+  // تعجب
+  else if(s.includes("چی") && s.includes("شد") || s.includes("واا") || s.includes("عجب"))
+    r = pick("surprise");
+
+  // طعنه سنگین
+  else if(s.includes("جدی") && s.includes("نیست") || s.includes("مسخره") || s.includes("باشه بابا"))
+    r = pick("sarcasm");
+
+  // طعنه دوستانه
+  else if(s.includes("باحالی") || s.includes("خفنی") || s.includes("شیطون"))
+    r = pick("soft_sarcasm");
+
+  // جواب احساسی کوتاه
+  else if(s.includes("سخته") || s.includes("غم") || s.includes("ناراحتم"))
+    r = pick("emotion_short");
+
+  // تحلیل جینکسی
+  else if(s.includes("تحلیل") || s.includes("نظر") || s.includes("چی فکر میکنی"))
+    r = pick("analysis_jinx");
+
+  // بحث و جدل
+  else if(s.includes("نه") && s.includes("این") || s.includes("اشتباه") || s.includes("بحث"))
+    r = pick("debate");
+
+  // جواب خفن / قوی
+  else if(s.includes("بزن") || s.includes("شروع") || s.includes("بریم"))
+    r = pick("badass");
+
+  // بامزه و عجیب
+  else if(s.includes("عجیب") || s.includes("دیوانه") || s.includes("خراب"))
+    r = pick("weird_funny");
+
+  // جواب طولانی
+  else if(s.includes("توضیح") || s.includes("داستان") || s.includes("بیشتر بگو"))
+    r = pick("long_answers");
+
+      else if(s.includes("ترس")||s.includes("میترسم")||s.includes("وحشت")) r = pick("scared");
+  else if(s.includes("غم")||s.includes("ناراحت")||s.includes("بدحالم")) r = pick("sad");
+  else if(s.includes("خفه شو")||s.includes("ساکت")||s.includes("دهنت")) r = pick("shut");
+  else if(s.includes("بزن")||s.includes("دعوا")||s.includes("مشت")) r = pick("fight");
+  else if(s.includes("بیکار")||s.includes("چیکار کنم")||s.includes("کاری")) r = pick("suggest");
+  else if(s.includes("تنهایی")||s.includes("تنها")) r = pick("lonely");
+  else if(s.includes("عشق")||s.includes("دوست داشتن")) r = pick("love");
+  else if(s.includes("جادو")||s.includes("قدرت")||s.includes("قدرت‌ها")) r = pick("power");
+  else if(s.includes("نظرت")||s.includes("فکر میکنی")) r = pick("opinion");
+  else if(s.includes("معذرت")||s.includes("ببخش")) r = pick("sorry");
+  else if(s.includes("شوخی")||s.includes("مسخره")) r = pick("sarcasm");
+  else if(s.includes("بهتر")||s.includes("چجوری")) r = pick("advice");
+  else if(s.includes("خفن")||s.includes("باحال")||s.includes("مگه تو کی‌ای")) r = pick("ego");
+  else if(s.includes("کمک")||s.includes("راه حل")) r = pick("help");
+  else if(s.includes("بی معنی")||s.includes("چرند")) r = pick("nonsense");
+  else if(s.includes("عجیب")||s.includes("غریب")) r = pick("weird");
+  else if(s.includes("بزن ترکونش")||s.includes("انفجار")||s.includes("بوم")) r = pick("boom");
+  else if(s.includes("خفگی")||s.includes("نفس")) r = pick("panic");
+  if(s.includes("عشق") || s.includes("دوست داشتن")) r = pick("love")
+  else if(s.includes("قدرت") || s.includes("جادو")) r = pick("power")
+  else if(s.includes("نظر") || s.includes("فکر میکنی")) r = pick("opinion")
+  else if(s.includes("معذرت") || s.includes("ببخش")) r = pick("sorry")
+  else if(s.includes("شوخی") || s.includes("مسخره")) r = pick("sarcasm")
+  else if(s.includes("بهتر") || s.includes("چجوری")) r = pick("advice")
+  else if(s.includes("خفن") || s.includes("باحال") || s.includes("مگه تو کی‌ای")) r = pick("ego")
+  else if(s.includes("کمک") || s.includes("راه حل")) r = pick("help")
+  else if(s.includes("بی معنی") || s.includes("چرند")) r = pick("nonsense")
+  else if(s.includes("عجیب") || s.includes("غریب")) r = pick("weird")
+  else if(s.includes("بزن ترکونش") || s.includes("انفجار") || s.includes("بوم")) r = pick("boom")
+  else if(s.includes("خفگی") || s.includes("نفس")) r = pick("panic")
+if(s.includes("خبر") || s.includes("اخبار")) r = pick("news")
+  else if(s.includes("فوتبال") || s.includes("گل") || s.includes("بازی")) r = pick("football")
+  else if(s.includes("تکنولوژی") || s.includes("گوشی") || s.includes("هوش مصنوعی")) r = pick("technology")
+  else if(s.includes("مدرسه") || s.includes("درس") || s.includes("امتحان") || s.includes("کلاس")) r = pick("school")
+  else if(s.includes("زندگی") || s.includes("روز") || s.includes("لحظه")) r = pick("life")
+  else if(s.includes("فیلم") || s.includes("سریال") || s.includes("ژانر")) r = pick("movies")
+  else if(s.includes("بازی") || s.includes("گیم") || s.includes("استراتژی")) r = pick("games")
+  else if(s.includes("شبکه") || s.includes("اینستاگرام") || s.includes("مجازی")) r = pick("social")
+  addMessage("jinx",r);
+  speak(r);
+}
 </script>
 
 </body>
